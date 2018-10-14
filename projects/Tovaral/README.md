@@ -1,2 +1,2 @@
-#### Alejandro Tovar's onid directory
+#### My assignment 2 submission
 
