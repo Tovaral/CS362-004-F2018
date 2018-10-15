@@ -663,7 +663,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
   }
   // refractored code here
   void play_adventurer(){
-	while(drawntreasure<2){
+	while(drawntreasure<1){ // bug here
 	if (state->deckCount[currentPlayer] <1){//if the deck is empty we need to shuffle discard and add to deck
 	  shuffle(currentPlayer, state);
 	}
@@ -747,7 +747,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
   }
   
   void play_steward(){
-	        if (choice1 == 2) // bug introduced
+	        if (choice1 == 1)
 	{
 	  //+2 cards
 	  drawCard(currentPlayer, state);
