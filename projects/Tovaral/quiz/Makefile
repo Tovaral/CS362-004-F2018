@@ -1,0 +1,1 @@
+gcc -g -Wall -std=99 -o randomTest testme.c -coverage -fpic -lm
