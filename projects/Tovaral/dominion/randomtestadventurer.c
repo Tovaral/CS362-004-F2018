@@ -68,9 +68,7 @@ int main() {
                 coinCountBefore++;
             }
         }
-        //printf("Coin Count before: %d\n", coinCount);
-        //printf("discard count before: %d\n", G.discardCount[curPlayer]);
-        //printf("deckSize: %d, deck: %d, and hand: %d\n", deckSize, G.deckCount[0], G.handCount[0]); 
+   
         adventurerEffect(curPlayer, &G);   
         
         coinCount = 0;
@@ -80,8 +78,6 @@ int main() {
                 coinCount++;
             }
         }
-        //printf("Coin Count after: %d\n", coinCount);
-        //printf("discard count after: %d\n", G.discardCount[curPlayer]);
         discardCopper = 0;
         discardSilver = 0;
         discardGold = 0;
@@ -132,8 +128,8 @@ int main() {
    
    printf("\n\n");
    printf("# of Tests Passed: %d\n", testPassed);
-   printf("# of Cards Drawn To Hand Failed: %d\n", handFailure);
-   printf("# of Smithy Discarded Fails: %d\n\n", discardFailure);
+   printf("# of Cards Drawn To Hand Failed: %d\n", drawTestFailed);
+   printf("# of Smithy Discarded Fails: %d\n\n", discardTestFailed);
    
    return 0;
 }
