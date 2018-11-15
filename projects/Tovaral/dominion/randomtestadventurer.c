@@ -1,135 +1,49 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 #include "dominion.h"
 #include "dominion_helpers.h"
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
 #include "rngs.h"
-#include <stdlib.h>
-#include <time.h>
 
-int main() {
-    struct gameState G;
-    int seed = 1000;
-    int numPlayers = 2;
-    int curPlayer = 0;
-	int k[10] = {adventurer, embargo, village, minion, mine, cutpurse,
-			sea_hag, tribute, smithy, council_room};  
-    int deckSize;
-    int handSize;
-    int i;
-    int j;
-    int q;
-    int randomCard;
-    int randK;
-    int m;
-    int coinCount;
-    int x;
-    int discardCopper;
-    int discardSilver;
-    int discardGold;
-    int coinCountBefore;
-    int testPassed = 0;
-    int drawTestFailed = 0;
-    int discardTestFailed = 0;
-    
-    srand(time(NULL));
-   //randomize hand size
-    for(i = 0; i < 1000000; i++){
-        initializeGame(numPlayers, k, seed, &G);
-        coinCountBefore = 0;
-        deckSize = rand() % (MAX_DECK + 1);
-   //set handsize
-        handSize = rand() % (deckSize + 1);
-      
-        
-        G.deckCount[0] = deckSize - handSize;
-        G.handCount[0] = handSize;
-        
-       
-        
-        for (j = 0; j < numPlayers; j++){
-            for(q = 0;q < G.deckCount[j]; q++){
-                randomCard = rand() % (50 + 1);
-                randK = rand() % (10);
-                if(randomCard == 1){
-                    G.deck[j][q] = copper;
-                } else if(randomCard == 2){
-                    G.deck[j][q] = silver;
-                }else if(randomCard == 3){
-                    G.deck[j][q] = gold;
-                }else {
-                    G.deck[j][q] = k[randK];
-                }
-            }
-        } 
-        
-        for(m = 0; m < G.handCount[curPlayer]; m++){
-            if(G.hand[curPlayer][m] == copper || G.hand[curPlayer][m] == silver || G.hand[curPlayer][m] == gold){
-                coinCountBefore++;
-            }
-        }
-   
-        adventurerEffect(curPlayer, &G);   
-        
-        coinCount = 0;
-        
-        for(m = 0; m < G.handCount[curPlayer]; m++){
-            if(G.hand[curPlayer][m] == copper || G.hand[curPlayer][m] == silver || G.hand[curPlayer][m] == gold){
-                coinCount++;
-            }
-        }
-        discardCopper = 0;
-        discardSilver = 0;
-        discardGold = 0;
-        for(x = 0; x < G.discardCount[curPlayer]; x++){
-            if(G.discard[curPlayer][x] == copper) {
-                discardCopper++;
-            } else if(G.discard[curPlayer][x] == silver) {
-                discardSilver++;
-            } else if(G.discard[curPlayer][x] == gold) {
-                discardGold++;
-            }
-        }
-        int passed = 1;
-        if(coinCount > (coinCountBefore + 2)){
-            printf("Too many cards drawn: Test Failed\n\n");
-            drawTestFailed++;
-            passed = 0;
-        }
-        
-        if( coinCount < coinCountBefore){
-            printf("Fewer cards exist in hand than were first present: Test Failed\n\n");
-            drawTestFailed++;
-            passed = 0;
-        }
-        if(discardCopper != 0){
-            printf("Copper was discarded: Test Failed\n\n");
-            discardTestFailed++;
-            passed = 0;
-        }
+int main (int argc, char** argv) {
+	int kingdom[10] = {adventurer, gardens, embargo, village, minion, mine, cutpurse, sea_hag, tribute, smithy};
+	int testSuccessful = 0, testFailed = 0,i, tests = 50;//sets number of tests, testSuccessful = successful, testFailed = not successful
 
-        if(discardSilver != 0){
-            printf("Silver was discarded: Test Failed\n\n");
-            discardTestFailed++;
-            passed = 0;
-        }
+	for(i = 0; i < tests; i++) {
 
-        if(discardGold != 0){
-            printf("Gold was discarded: Test Failed\n\n");
-            discardTestFailed++;
-            passed = 0;
-        }
+		int num_players = rand() % 4, player = 0, rand_seed = rand();//set player, #players, and random seed		
+		struct gameState *g = malloc(sizeof(struct gameState));//make gamestate
+		int status = initializeGame(num_players, kingdom, rand_seed, g);//Initialize the game with values above
 
-        if(passed == 1){
-            printf("All Tests: Passed\n\n");
-            testPassed++;
-        }
-   }
-   
-   printf("\n\n");
-   printf("# of Tests Passed: %d\n", testPassed);
-   printf("# of Cards Drawn To Hand Failed: %d\n", drawTestFailed);
-   printf("# of Smithy Discarded Fails: %d\n\n", discardTestFailed);
-   
-   return 0;
+		g->deckCount[player] = rand() % MAX_DECK;//randomize deck size
+		g->discardCount[player] = rand() % MAX_DECK;//randomize discard size
+		g->handCount[player] = rand() % MAX_HAND;//randomize hand size
+
+		int checkStatus = 0,x;//variable to track if cards added were treasure cards or not 
+	
+		for(x = 0 ; x < g->handCount[player]; x++) {
+			if((g->hand[player][x] == gold) || (g->hand[player][x] == silver) || (g->hand[player][x] == copper)) {
+				checkStatus++;
+			}
+		}
+		cardEffect(adventurer, 1, 1, 1, g, 0, 0);//play the card
+
+	
+		for(x = 0 ; x < g->handCount[player]; x++) {
+			if((g->hand[player][x] == gold) || (g->hand[player][x] == silver) || (g->hand[player][x] == copper)) {
+				checkStatus--;
+			}
+		}
+
+		if(checkStatus < 0) 
+			testSuccessful++;//if cards were added, and were treasure cards, then this test was successful
+		else 
+			testFailed++;
+
+		free(g);
+	}
+	printf("Random Test 1: Adventurer Card");
+	printf("\nThere were %d successful adventurer card plays, and %d failures [out of %d games]\n\n", testSuccessful, testFailed, tests);
+
+	return 0;
 }
