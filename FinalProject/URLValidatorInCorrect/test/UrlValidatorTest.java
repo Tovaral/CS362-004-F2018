@@ -1,48 +1,254 @@
 
-
 import junit.framework.TestCase;
-
-//You can use this as a skeleton for your 3 different test approach
-//It is an optional to use this file, you can generate your own test file(s) to test the target function!
-// Again, it is up to you to use this file or not!
-
-
-
 
 
 public class UrlValidatorTest extends TestCase {
-
+    private final boolean printStatus = true;
 
    public UrlValidatorTest(String testName) {
-      super(testName);
+  	super(testName);
    }
+   
+   
+ //You can use this function to implement your manual testing      
+   public void testManualTest(){
+       
+   	UrlValidator urlVal = new UrlValidator(null, null, UrlValidator.ALLOW_ALL_SCHEMES);
+   	if (printStatus) {
+         	System.out.println("testManualTest() ");
+    	}
+   	// Valid
+   	assertTrue(urlVal.isValid("http://www.google.com"));
+   	assertTrue(urlVal.isValid("ftp://255.255.255.255:65535/test1/"));
+       
+   	assertTrue(urlVal.isValid("ftp://255.255.255.255:80/test1/?action=edit&mode=up"));
+   	assertTrue(urlVal.isValid("http://go.com:80/$23"));
+   	assertTrue(urlVal.isValid("h3t://www.google.com:0/test1/file?action=edit&mode=up"));
+   	assertTrue(urlVal.isValid("ftp://255.com:80/test1?action=view"));
+//   	// Invalid
+   	assertFalse(urlVal.isValid("http:///www.google.com/"));
+   	assertFalse(urlVal.isValid("://www.google.com"));
+   	assertFalse(urlVal.isValid("://www.google.com:65535/test1?action=edit&mode=up"));
+   	assertFalse(urlVal.isValid("http:/go.a:65a/test1"));
+   	assertFalse(urlVal.isValid("http://go.au/../?action=edit&mode=up"));
+   	assertFalse(urlVal.isValid("3ht://go.1aa:80/test1"));
+   	assertFalse(urlVal.isValid("ftp://256.256.256.256:65535/test1/"));
+   }
+   
+   // testUrlScheme
+   public void testYourFirstPartition(){
+   	System.out.println("testYourFirstPartition()");
+   	UrlValidator urlVal = new UrlValidator(null, null, UrlValidator.ALLOW_ALL_SCHEMES);
+   	for(int index = 0; index < testUrlScheme.length; index++) {
+   		 StringBuilder testBuffer = new StringBuilder();
+        	boolean expected = true;
+        	testBuffer.append(testUrlScheme[index].item);
+        	testBuffer.append("www.google.com");
+        	expected &= testUrlScheme[index].valid;
+       	 
+         	String url = testBuffer.toString();
+         	boolean result = urlVal.isValid(url);
+//         	if(result == true){
+       		  System.out.println(url + ", result="+ result + ", expected=" + expected);
+//         	}
+         	assertEquals(url, expected, result);
+     	}
+}
 
-   
-   
-   public void testManualTest()
-   {
-//You can use this function to implement your manual testing	   
-	   
-   }
-   
-   
-   public void testYourFirstPartition()
-   {
-	 //You can use this function to implement your First Partition testing	   
-
-   }
-   
+   //testUrlAuthority
    public void testYourSecondPartition(){
-		 //You can use this function to implement your Second Partition testing	   
-
+   	  //You can use this function to implement your Second Partition testing    
+   	System.out.println("testYourSecondPartition()");
+   	UrlValidator urlVal = new UrlValidator(null, null, UrlValidator.ALLOW_ALL_SCHEMES);
+   	// randomly generate a url
+   	for(int index = 0; index < testUrlAuthority.length; index++) {
+   		 StringBuilder testBuffer = new StringBuilder();
+   		 testBuffer.append("http://");
+        	boolean expected = true;
+        	testBuffer.append(testUrlAuthority[index].item);
+        	expected &= testUrlAuthority[index].valid;
+       	 
+        	String url = testBuffer.toString();
+        	boolean result = urlVal.isValid(url);
+//        	if(result == true){
+//       		 System.out.println(url);
+//        	}
+        	System.out.println(url + ", result="+ result + ", expected=" + expected);
+        	assertEquals(url, expected, result);
+     	}
    }
-   //You need to create more test cases for your Partitions if you need to 
    
    public void testIsValid()
    {
-	   //You can use this function for programming based testing
-
+   	//You can use this function for programming based testing
+   	int test_count = 2000;// set the test count to run
+   	System.out.println("testIsValid()");
+   	UrlValidator urlVal = new UrlValidator(null, null, UrlValidator.ALLOW_ALL_SCHEMES);
+   	// randomly generate a url
+   	for(int i = 0; i < test_count; i++) {
+      	// randomize
+   		 StringBuilder testBuffer = new StringBuilder();
+        	boolean expected = true;
+        	// for each partition, pick an item randomly
+        	for (int testPartsIndex = 0; testPartsIndex < testUrlParts.length; ++testPartsIndex) {
+            	ResultPair[] part = (ResultPair[]) testUrlParts[testPartsIndex]; // get the items in the partition
+            	int index = (int) (Math.random() * part.length); // get a random number for index
+            	testBuffer.append(part[index].item); // get the item for current partition
+            	expected &= part[index].valid; // accumulate the expected result
+            	//System.out.println("details "+ part[index].item + " " + part[index].valid);
+         	}
+         	String url = testBuffer.toString(); // create the url
+         	boolean result = urlVal.isValid(url); // get result by our own defined validation function.
+         	if(result == true){
+       		  System.out.println(url);
+         	}
+//         	if(result == true){
+//       		  System.out.println("true " + url);
+//         	}else{
+//       		  System.out.println("false " + url);
+//         	}
+         	assertEquals(url, expected, result); // compare the expected output and actual result
+     	}
    }
+
+    /**
+	* Only used to debug the unit tests.
+	* @param argv
+	*/
+   public static void main(String[] argv) {
+   	UrlValidatorTest fct = new UrlValidatorTest("url test");
+   	fct.testManualTest();
+   	fct.testYourFirstPartition();
+   	fct.testYourSecondPartition();
+   	fct.testIsValid();
+   }
+   ResultPair[] testUrlScheme = {
+   		new ResultPair("http/", false),
+   		new ResultPair("http:/", false),
+   		new ResultPair("http://", true),
+       	new ResultPair("ftp://", true),
+       	new ResultPair("h3t://", true),
+       	new ResultPair("3ht://", false),
+       	new ResultPair("http:", false),
+       	new ResultPair("://", false)
+       	};
+
+    ResultPair[] testUrlAuthority = {
+   		 new ResultPair("www.google.com", true),
+   		 new ResultPair("go.com", true),
+   		 new ResultPair("go.au", true),
+   		 new ResultPair("0.0.0.0", true),
+   		 new ResultPair("255.255.255.255", true),
+   		 new ResultPair("256.256.256.256", false),
+   		 new ResultPair("255.com", true),
+   		 new ResultPair("1.2.3.4.5", false),
+   		 new ResultPair("1.2.3.4.", false),
+   		 new ResultPair("1.2.3", false),
+   		 new ResultPair(".1.2.3.4", false),
+   		 new ResultPair("go.a", false),
+   		 new ResultPair("go.a1a", false),
+   		 new ResultPair("go.1aa", false),
+   		 new ResultPair("aaa.", false),
+   		 new ResultPair(".aaa", false),
+   		 new ResultPair("aaa", false),
+   		 new ResultPair("", false)
+    };
+    ResultPair[] testUrlPort = {
+   		 new ResultPair(":80", true),
+        	new ResultPair(":65535", true),
+        	new ResultPair(":0", true),
+        	new ResultPair("", true),
+        	new ResultPair(":-1", false),
+        	new ResultPair(":65636",false),
+        	new ResultPair(":65a", false)
+    };
+    ResultPair[] testPath = {
+   		 new ResultPair("/test1", true),
+   		 new ResultPair("/t123", true),
+   		 new ResultPair("/$23", true),
+   		 new ResultPair("/..", false),
+   		 new ResultPair("/../", false),
+   		 new ResultPair("/test1/", true),
+   		 new ResultPair("", true),
+   		 new ResultPair("/test1/file", true),
+   		 new ResultPair("/..//file", false),
+   		 new ResultPair("/test1//file", false)
+    };
+    //Test allow2slash, noFragment
+    ResultPair[] testUrlPathOptions = {
+   		 new ResultPair("/test1", true),
+        	new ResultPair("/t123", true),
+        	new ResultPair("/$23", true),
+        	new ResultPair("/..", false),
+        	new ResultPair("/../", false),
+        	new ResultPair("/test1/", true),
+        	new ResultPair("/#", false),
+        	new ResultPair("", true),
+        	new ResultPair("/test1/file", true),
+        	new ResultPair("/t123/file", true),
+        	new ResultPair("/$23/file", true),
+        	new ResultPair("/../file", false),
+        	new ResultPair("/..//file", false),
+        	new ResultPair("/test1//file", true),
+        	new ResultPair("/#/file", false)
+    };
+    
+    ResultPair[] testUrlQuery = {new ResultPair("?action=view", true),
+          	new ResultPair("?action=edit&mode=up", true),
+          	new ResultPair("", true)
+    };
+    Object[] testUrlParts = {testUrlScheme, testUrlAuthority, testUrlPort, testPath, testUrlQuery};
+
+}
+
+Here is some partitioning tests I wrote:
+
+public void testFirstPartition(){//PARTITION 1: SCHEME
+        System.out.println("Scheme tests:");
+        assertCheck = 0;
+        UrlValidator urlVal = new UrlValidator(null, null, UrlValidator.ALLOW_ALL_SCHEMES);
+
+        assertFalse("This scheme should not validate: h@@@ttp://www.gmail.com",urlVal.isValid("h@@@ttp://www.gmail.com"));
+        assertFalse("This scheme should not validate: 95http://www.gmail.com",urlVal.isValid("95http://www.gmail.com"));
+        assertFalse("This scheme should not validate: 00http://www.gmail.com",urlVal.isValid("00http://www.gmail.com"));
+
+        assertTrue("This scheme should validate: http://www.gmail.com",urlVal.isValid("http://www.gmail.com"));
+        assertTrue("This scheme should validate: ftp://www.gmail.com",urlVal.isValid("ftp://www.gmail.com"));
+        assertTrue("This scheme should validate: https://www.gmail.com",urlVal.isValid("https://www.gmail.com"));
+        assertTrue("This scheme should validate: ftps://www.gmail.com",urlVal.isValid("ftps://www.gmail.com"));
+        assertTrue("This scheme should validate: telnet://www.gmail.com",urlVal.isValid("telnet://www.gmail.com"));
+
+        if(assertCheck > 0)
+            fail("The scheme partitioned tests have failed");
+        else
+            System.out.println("Success");
+    }
+
+    public void testSecondPartition(){//PARTITION 2: Authority
+        System.out.println("Authority tests:");
+        assertCheck = 0;
+        UrlValidator urlVal = new UrlValidator(null, null, UrlValidator.ALLOW_ALL_SCHEMES);
+        assertFalse("This authority should not validate: http://www-wrong-multi-format",urlVal.isValid("http://www-wrong-multi-format"));
+        assertFalse("This authority should not validate: http://www.------------.com",urlVal.isValid("http://www.------------.com"));
+        assertFalse("This authority should not validate: http://.dotcheck",urlVal.isValid("http://.dotcheck"));
+        assertFalse("This authority should not validate: http://www/incorrectslash/edu",urlVal.isValid("http://www/incorrectslash/edu"));
+        assertFalse("This authority should not validate: http://www.10:1:00:10",urlVal.isValid("http://www.10:1:00:10"));
+        assertFalse("This authority should not validate: http://0.0.0.0.0",urlVal.isValid("http://0.0.0.0.0"));
+        assertFalse("This authority should not validate: http://0.0.1",urlVal.isValid("http://0.0.1"));
+        assertFalse("This URL should not validate: http://257.257.257.257:90/testing?test=thetest",urlVal.isValid("http://256.256.256.256:80/test1?action=view"));
+        assertFalse("This URL should not validate: http://300.300.300.300:90/testing?test=thetest",urlVal.isValid("http://300.300.300.300:80/test1?action=view"));
+
+        assertTrue("This authority should not validate: http://www.gmail.edu",urlVal.isValid("http://www.gmail.edu"));
+        assertTrue("This authority should validate: http://www.multi-word-check.com",urlVal.isValid("http://www.multi-word-check.com"));
+        assertTrue("This authority should validate: http://docs.checkProperFromat.com",urlVal.isValid("http://docs.checkProperFromat.com"));
+        assertTrue("This authority should validate: http://254.254.254.250",urlVal.isValid("http://254.254.254.250"));
+
+        if(assertCheck > 0)
+            fail("The authority partitioned tests have failed");
+        else
+            System.out.println("Success");
+    }
+
    
 
 
